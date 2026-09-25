@@ -1,4 +1,4 @@
-import type { HotelListing } from '@/@types/hotel';
+import type { HotelListing } from '@/types/hotel';
 
 export const STUB_HOTELS: HotelListing[] = [
   {

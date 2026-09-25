@@ -2,10 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { RoleEscrowDashboard } from "@/components/dashboard/RoleEscrowDashboard";
-import type {
-  EscrowData,
-  NotificationData,
-} from "@/components/dashboard/RoleEscrowDashboard";
+import type { EscrowData, NotificationData } from "@/types/escrow";
 import {
   fetchMockEscrows,
   generateMockNotifications,

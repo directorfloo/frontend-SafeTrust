@@ -1,6 +1,6 @@
 'use client';
 
-import type { HotelListing } from '@/@types/hotel';
+import type { HotelListing } from '@/types/hotel';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { AiOutlineHeart } from 'react-icons/ai';

@@ -1,6 +1,6 @@
 'use client';
 
-import type { HotelAmenitySummary } from '@/@types/hotel';
+import type { HotelAmenitySummary } from '@/types/hotel';
 import { FaBath, FaBed, FaPaw } from 'react-icons/fa';
 
 interface AmenityIconsProps extends HotelAmenitySummary {

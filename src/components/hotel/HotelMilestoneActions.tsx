@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { CheckInApproval } from './CheckInApproval';
 import { CheckOutProcess } from './CheckOutProcess';
 import { Booking, EscrowMetadata } from './types';
-import { EscrowData } from '@/components/dashboard/RoleEscrowDashboard';
+import type { EscrowData } from '@/types/escrow';
 
 interface HotelMilestoneActionsProps {
   escrow: EscrowData;
