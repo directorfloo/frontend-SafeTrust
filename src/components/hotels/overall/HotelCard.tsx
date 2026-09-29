@@ -75,7 +75,7 @@ export default function HotelCard({ hotel, onToggleFavorite }: HotelCardProps) {
       <CardFooter className="p-4 pt-0 flex justify-between items-center">
         <div>
           <span className="font-bold text-lg">${hotel.price.toFixed(2)}</span>
-          <span className="text-sm text-gray-500">/night</span>
+          <span className="text-sm text-gray-500">Per month</span>
         </div>
       </CardFooter>
     </Card>
