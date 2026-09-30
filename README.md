@@ -113,9 +113,21 @@ NEXT_PUBLIC_FIREBASE_APP_ID=<your appId>
 
 Make sure **Email/Password** sign-in is enabled in **Authentication → Sign-in method** for Register and Login to work. 📚 [Firebase Auth docs](https://firebase.google.com/docs/auth)
 
+#### 🔐 2. Wallet sign-in (SEP-10)
+
+Stellar wallet sign-in uses the backend's SEP-10 challenge and verification endpoints, then exchanges the returned Firebase custom token in the frontend. Set the server-only backend URL in `.env.local`:
+
+```bash
+BACKEND_URL=http://localhost:4000
+```
+
+The frontend proxies wallet requests through `/api/auth/wallet/challenge` and `/api/auth/wallet/verify`. The backend must implement these routes and be reachable at `BACKEND_URL`; wallet sign-in will return `503` when it is not configured. Do not use a `NEXT_PUBLIC_` prefix for this URL.
+
+Configure `SEP10_SIGNING_SECRET`, `SEP10_HOME_DOMAIN`, `SEP10_WEB_AUTH_DOMAIN`, and `STELLAR_NETWORK` in the **backend's** environment only. The signing secret is sensitive and must never be added to this frontend repository. Publish the matching `SIGNING_KEY` and `WEB_AUTH_ENDPOINT` in the `stellar.toml` served for the SEP-10 home domain. See the `backend-SafeTrust` wallet-auth setup for the endpoint URL and key-generation instructions.
+
 ---
 
-#### 🌐 2. TrustlessWork API (Optional, don't need it yet)
+#### 🌐 3. TrustlessWork API (Optional, don't need it yet)
 
 ```bash
 NEXT_PUBLIC_API_URL=https://api.trustlesswork.com
@@ -130,7 +142,7 @@ NEXT_PUBLIC_TRUSTLESS_NETWORK=testnet
 
 ---
 
-#### 🗄️ 3. Hasura GraphQL
+#### 🗄️ 4. Hasura GraphQL
 
 ```bash
 NEXT_PUBLIC_HASURA_GRAPHQL_URL=<your Hasura GraphQL endpoint>/v1/graphql
