@@ -1,7 +1,7 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
-import { RoleEscrowDashboard } from "@/components/dashboard/RoleEscrowDashboard";
 import type {
   EscrowData,
   NotificationData,
@@ -11,6 +11,14 @@ import {
   generateMockNotifications,
 } from "@/lib/mockData";
 import { getUserRole } from "@/utils/role-utils";
+
+const RoleEscrowDashboard = dynamic(
+  () =>
+    import("@/components/dashboard/RoleEscrowDashboard").then(
+      (mod) => mod.RoleEscrowDashboard,
+    ),
+  { ssr: false },
+);
 
 export function RoleEscrowDashboardPage() {
   const [userRole, setUserRole] = useState<"guest" | "hotel" | "admin">("guest");
