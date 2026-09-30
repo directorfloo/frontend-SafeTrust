@@ -12,9 +12,11 @@ import Illustration from "@/components/auth/ui/Illustration";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithCustomToken, signInWithEmailAndPassword } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { auth } from "@/lib/firebase";
+import Cookies from "js-cookie";
+import { kit } from "./wallet/constants/wallet-kit.constant";
 import { useMultiWallet } from "./wallet/hooks/multi-wallet.hook";
 import { MainWalletSelectionModal } from "./wallet/components/MainWalletSelectionModal";
 import { WalletSelectionModal } from "./wallet/components/WalletSelectionModal";
@@ -40,7 +42,6 @@ export default function LoginPage() {
     closeStellarModal,
     closeMetaMaskModal,
     handleWalletTypeSelected,
-    handleStellarWalletSelected,
     handleMetaMaskSelected,
   } = useMultiWallet();
 
@@ -51,6 +52,66 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const handleStellarWalletSelected = async (wallet: { id: string; name: string }) => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      kit.setWallet(wallet.id);
+      const { address } = await kit.getAddress();
+
+      const challengeResponse = await fetch("/api/auth/wallet/challenge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ account: address }),
+      });
+      const challenge = await challengeResponse.json();
+
+      if (!challengeResponse.ok) {
+        throw new Error(challenge.error || "Failed to request wallet challenge");
+      }
+
+      const { signedTxXdr } = await kit.signTransaction(challenge.transaction, {
+        address,
+        networkPassphrase: challenge.network_passphrase,
+      });
+
+      const verifyResponse = await fetch("/api/auth/wallet/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transaction: signedTxXdr }),
+      });
+      const verification = await verifyResponse.json();
+
+      if (!verifyResponse.ok) {
+        throw new Error(verification.error || "Wallet verification failed");
+      }
+
+      const credential = await signInWithCustomToken(auth, verification.customToken);
+      const idToken = await credential.user.getIdToken();
+
+      Cookies.set("firebase-token", idToken, {
+        expires: 7,
+        secure: window.location.protocol === "https:",
+        sameSite: "strict",
+      });
+      useGlobalAuthenticationStore.getState().connectWalletStore(address, wallet.name);
+      useGlobalAuthenticationStore.getState().setToken(idToken);
+      closeStellarModal();
+
+      toast.success("Wallet login successful!", {
+        description: "Redirecting to your dashboard...",
+      });
+      router.push("/dashboard/escrow-dashboard");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Wallet login failed";
+      setError(message);
+      toast.error(message, { duration: 4000 });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if ((address || token) && pathname === "/login") {
