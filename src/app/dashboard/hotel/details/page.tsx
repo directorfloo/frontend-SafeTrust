@@ -20,7 +20,7 @@ export default function HotelPage() {
     <div className="bg-gray-100 min-h-screen dark:bg-dark-background text-black dark:text-white text-sm">
       <Header />
       <div className="flex flex-col lg:flex-row mt-8">
-        <SideBar className="hidden md:block" notificationCount={2} />
+        <SideBar className="hidden md:block" />
         <div className="flex-grow p-4 flex flex-col items-center gap-6">
           <div className="w-full md:w-2/3">
             <Gallery images={images} />

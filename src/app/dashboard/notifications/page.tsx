@@ -1,70 +1,49 @@
 "use client";
 
-import { useState } from "react";
 import { Bell } from "lucide-react";
 import { NotificationItem } from "@/components/dashboard/NotificationItem";
-
-// TODO: replace with real Hasura query once public.notifications table is created
-const MOCK_NOTIFICATIONS = [
-  {
-    id: "1",
-    type: "success" as const,
-    title: "Escrow funded",
-    message: "Your escrow ST-1-1714000000000 has been funded.",
-    timestamp: "Today at 10:22 AM",
-    read: false,
-  },
-  {
-    id: "2",
-    type: "info" as const,
-    title: "Bid accepted",
-    message: "Your bid on La Sabana house was accepted.",
-    timestamp: "Yesterday at 3:15 PM",
-    read: true,
-  },
-  {
-    id: "3",
-    type: "warning" as const,
-    title: "Action required",
-    message: "Sign the escrow contract before it expires.",
-    timestamp: "May 30 at 9:00 AM",
-    read: false,
-  },
-];
+import { Button } from "@/components/ui/button";
+import {
+  IS_MOCK_NOTIFICATION_DATA,
+  useNotifications,
+  useUnreadNotificationCount,
+} from "@/hooks/useNotifications";
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
-  const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
-
-  const markRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-  };
+  const notifications = useNotifications((state) => state.items);
+  const markRead = useNotifications((state) => state.markRead);
+  const markAllRead = useNotifications((state) => state.markAllRead);
+  const unreadCount = useUnreadNotificationCount();
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+    <div className="min-w-0 space-y-4 p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           <h1 className="text-xl font-semibold">Notifications</h1>
+          {IS_MOCK_NOTIFICATION_DATA && (
+            <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
+              Mock data
+            </span>
+          )}
           {unreadCount > 0 && (
-            <span className="rounded-full bg-purple-600 px-2 py-0.5 text-xs text-white font-medium">
+            <span
+              aria-label={`${unreadCount} unread`}
+              className="rounded-full bg-sky-700 px-2 py-0.5 text-xs font-medium text-white dark:bg-sky-400 dark:text-slate-950"
+            >
               {unreadCount}
             </span>
           )}
         </div>
         {unreadCount > 0 && (
-          <button
+          <Button
+            type="button"
             onClick={markAllRead}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            variant="ghost"
+            size="sm"
+            className="shrink-0 text-foreground"
           >
             Mark all as read
-          </button>
+          </Button>
         )}
       </div>
 

@@ -104,7 +104,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
 
       {/* Desktop Permanent Sidebar */}
       {pathname !== "/dashboard/profile" && (
-        <SideBar variant="permanent" notificationCount={1} />
+        <SideBar variant="permanent" />
       )}
 
       <main className={`flex-1 transition-all duration-300 min-h-[calc(100vh-4rem)] pt-16 ${pathname !== "/dashboard/profile" ? "md:ml-16 lg:ml-48" : ""}`}>

@@ -5,10 +5,10 @@ import { Bell, Building2, Heart, Home, PlusSquare, Shield, Users } from "lucide-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogoutButton } from "@/components/auth/LogoutButton";
+import { useUnreadNotificationCount } from "@/hooks/useNotifications";
 
 interface SideBarProps {
   className?: string;
-  notificationCount?: number;
   isOpen?: boolean;
   onClose?: () => void;
   variant?: "drawer" | "permanent";
@@ -16,12 +16,12 @@ interface SideBarProps {
 
 export function SideBar({
   className,
-  notificationCount = 0,
   isOpen,
   onClose,
   variant = "permanent",
 }: SideBarProps) {
   const pathname = usePathname();
+  const notificationCount = useUnreadNotificationCount();
 
   return (
     <div
@@ -88,9 +88,12 @@ export function SideBar({
           <Bell className="w-6 h-6 shrink-0 dark:text-gray-400" />
           <span className="md:hidden lg:block">Notifications</span>
           {notificationCount > 0 && (
-            <div className="ml-auto shrink-0 bg-blue-500 text-white rounded-full min-w-[18px] h-4.5 flex items-center justify-center text-[10px] font-bold px-1 dark:bg-blue-600">
+            <span
+              aria-label={`${notificationCount} unread notifications`}
+              className="ml-auto flex h-4.5 min-w-[18px] shrink-0 items-center justify-center rounded-full bg-sky-700 px-1 text-[10px] font-bold text-white dark:bg-sky-400 dark:text-slate-950"
+            >
               {notificationCount}
-            </div>
+            </span>
           )}
           {/* Tooltip for rail mode */}
           <span className="hidden md:group-hover:block lg:group-hover:hidden absolute left-14 bg-popover text-popover-foreground px-2 py-1 rounded shadow-md text-xs z-50 whitespace-nowrap">
