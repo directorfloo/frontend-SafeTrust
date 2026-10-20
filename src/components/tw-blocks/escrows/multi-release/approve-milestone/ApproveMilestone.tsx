@@ -4,7 +4,10 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { useEscrowsMutations } from "@/components/tw-blocks/tanstack/useEscrowsMutations";
 import { useWalletContext } from "@/components/tw-blocks/wallet-kit/WalletProvider";
-import { ApproveMilestonePayload } from "@trustless-work/escrow/types";
+import type {
+  ApproveMilestonePayload,
+  SendTransactionResponse,
+} from "@trustless-work/escrow/types";
 import { toast } from "sonner";
 import {
   ErrorResponse,
@@ -13,14 +16,19 @@ import {
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+export type ApproveMilestoneSuccess = SendTransactionResponse & {
+  customMetadata?: Record<string, unknown>;
+};
+
 type ApproveMilestoneProps = {
   contractId: string;
   milestoneId: string | number;
   approverWallet: string;
-  onSuccess?: (data?: any) => void;
-  customMetadata?: Record<string, any>;
+  onSuccess?: (data: ApproveMilestoneSuccess) => void;
+  customMetadata?: Record<string, unknown>;
   confirmationMessage?: string;
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  variant?:
+    "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
   size?: "default" | "sm" | "lg" | "icon";
   className?: string;
   children?: React.ReactNode;
@@ -56,7 +64,7 @@ export const ApproveMilestone = ({
         approver: approverWallet || walletAddress || "",
       };
 
-      await approveMilestone.mutateAsync({
+      const response = await approveMilestone.mutateAsync({
         payload,
         type: "multi-release",
         address: approverWallet || walletAddress || "",
@@ -65,7 +73,7 @@ export const ApproveMilestone = ({
       toast.success("Milestone approved successfully");
 
       if (onSuccess) {
-        onSuccess({ ...payload, customMetadata });
+        onSuccess({ ...response, customMetadata });
       }
     } catch (error) {
       toast.error(handleError(error as ErrorResponse).message);

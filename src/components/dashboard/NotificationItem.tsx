@@ -24,7 +24,7 @@ const ICONS = {
     className: "text-amber-700 dark:text-amber-300",
     label: "Warning",
   },
-};
+} as const;
 
 export function NotificationItem({
   type,
