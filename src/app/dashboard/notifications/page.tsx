@@ -27,10 +27,11 @@ export default function NotificationsPage() {
           )}
           {unreadCount > 0 && (
             <span
-              aria-label={`${unreadCount} unread`}
+              data-testid="notification-unread-count"
               className="rounded-full bg-sky-700 px-2 py-0.5 text-xs font-medium text-white dark:bg-sky-400 dark:text-slate-950"
             >
-              {unreadCount}
+              <span aria-hidden="true">{unreadCount}</span>
+              <span className="sr-only">{unreadCount} unread</span>
             </span>
           )}
         </div>

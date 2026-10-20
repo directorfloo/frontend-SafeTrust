@@ -89,10 +89,12 @@ export function SideBar({
           <span className="md:hidden lg:block">Notifications</span>
           {notificationCount > 0 && (
             <span
-              aria-label={`${notificationCount} unread notifications`}
               className="ml-auto flex h-4.5 min-w-[18px] shrink-0 items-center justify-center rounded-full bg-sky-700 px-1 text-[10px] font-bold text-white dark:bg-sky-400 dark:text-slate-950"
             >
-              {notificationCount}
+              <span aria-hidden="true">{notificationCount}</span>
+              <span className="sr-only">
+                {notificationCount} unread notifications
+              </span>
             </span>
           )}
           {/* Tooltip for rail mode */}

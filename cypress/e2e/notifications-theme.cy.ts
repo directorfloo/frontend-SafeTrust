@@ -8,14 +8,26 @@ describe("notification theme and read state", () => {
   it("keeps notification text readable and the read state while switching themes", () => {
     let darkTitleColor = "";
 
-    cy.get('[aria-label="2 unread"]').should("be.visible");
-    cy.get('[aria-label="2 unread notifications"]')
+    cy.get('[data-testid="notification-unread-count"]')
+      .should("contain.text", "2 unread")
+      .find('[aria-hidden="true"]')
+      .should("have.text", "2");
+    cy.get(".sr-only")
+      .filter((_index, element) =>
+        element.textContent?.includes("2 unread notifications"),
+      )
       .filter(":visible")
       .should("have.length", 1);
 
     cy.contains("button", "Escrow funded").click();
-    cy.get('[aria-label="1 unread"]').should("be.visible");
-    cy.get('[aria-label="1 unread notifications"]')
+    cy.get('[data-testid="notification-unread-count"]')
+      .should("contain.text", "1 unread")
+      .find('[aria-hidden="true"]')
+      .should("have.text", "1");
+    cy.get(".sr-only")
+      .filter((_index, element) =>
+        element.textContent?.includes("1 unread notifications"),
+      )
       .filter(":visible")
       .should("have.length", 1);
     cy.contains("button", "Success: Escrow funded").should(
@@ -47,11 +59,18 @@ describe("notification theme and read state", () => {
 
     cy.get('button[aria-label="Switch to dark mode"]').click();
     cy.get("html").should("have.class", "dark");
-    cy.get('[aria-label="1 unread"]').should("be.visible");
+    cy.get('[data-testid="notification-unread-count"]').should(
+      "contain.text",
+      "1 unread",
+    );
 
     cy.contains("button", "Mark all as read").click();
     cy.contains("button", "Mark all as read").should("not.exist");
-    cy.get('[aria-label="1 unread"]').should("not.exist");
-    cy.get('[aria-label="1 unread notifications"]').should("not.exist");
+    cy.get('[data-testid="notification-unread-count"]').should("not.exist");
+    cy.get(".sr-only")
+      .filter((_index, element) =>
+        element.textContent?.includes("1 unread notifications"),
+      )
+      .should("not.exist");
   });
 });
