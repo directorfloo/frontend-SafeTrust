@@ -22,9 +22,14 @@ test("notification state and contrast stay consistent across themes", async ({
 
   await page.goto("/dashboard/notifications");
   const pageCount = page.getByTestId("notification-unread-count");
+  const unreadStatus = page.getByTestId("notification-unread-status");
   const sidebarCount = page.getByTestId("sidebar-notification-unread-count");
+  await expect(unreadStatus).toHaveAttribute("aria-live", "polite");
+  await expect(unreadStatus).toHaveText("2 unread notifications");
   await expect(pageCount).toContainText("2 unread");
-  await expect(pageCount.locator(".sr-only")).toHaveText("2 unread");
+  await expect(pageCount.locator(".sr-only")).toHaveText(
+    "2 unread notifications",
+  );
   await expect(sidebarCount.filter({ visible: true })).toContainText(
     "2 unread notifications",
   );
@@ -34,8 +39,11 @@ test("notification state and contrast stay consistent across themes", async ({
   });
   await waitForHydration(fundedNotification);
   await fundedNotification.click();
+  await expect(unreadStatus).toHaveText("1 unread notification");
   await expect(pageCount).toContainText("1 unread");
-  await expect(pageCount.locator(".sr-only")).toHaveText("1 unread");
+  await expect(pageCount.locator(".sr-only")).toHaveText(
+    "1 unread notification",
+  );
   await expect(sidebarCount.filter({ visible: true })).toContainText(
     "1 unread notifications",
   );
@@ -63,6 +71,7 @@ test("notification state and contrast stay consistent across themes", async ({
     page.getByRole("button", { name: "Mark all as read" }),
   ).toHaveCount(0);
   await expect(pageCount).toHaveCount(0);
+  await expect(unreadStatus).toHaveText("All notifications are read");
   await expect(sidebarCount.filter({ visible: true })).toHaveCount(0);
 
   await page.setViewportSize({ width: 320, height: 844 });
