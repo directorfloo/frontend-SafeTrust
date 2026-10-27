@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,6 +21,9 @@ import { PageContainer } from "@/components/layouts/PageContainer";
 import { getConversationIdForApartment } from "@/lib/conversationRoutes";
 import { APARTMENT_LISTINGS } from "@/lib/mockData/apartmentListings";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useSaveStay } from "@/features/listings/wishlist/useSaveStay";
+import { WishlistAnnouncer } from "@/features/listings/wishlist/WishlistAnnouncer";
+import { ListingPrice } from "@/components/listings/ListingPrice";
 import { ListingLocation } from "@/features/listings/detail/ListingLocation";
 import { useListingResults } from "@/features/listings/search/useListingResults";
 import { listingHref } from "@/features/listings/search/links";
@@ -33,7 +36,7 @@ function GuestSuggestionsContent() {
   const searchParams = useSearchParams();
   const paramsString = searchParams.toString();
   const results = useListingResults(APARTMENT_LISTINGS);
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const { isSaved, toggleSaved, announcement } = useSaveStay();
 
   const requestedId = searchParams.get("selected");
   const validRequestedId =
@@ -60,17 +63,12 @@ function GuestSuggestionsContent() {
     .map(([key, value]) => `${key}: ${value}`)
     .join(", ");
 
-  const toggleFavorite = (id: string) => {
-    setFavorites((curr) =>
-      curr.includes(id) ? curr.filter((f) => f !== id) : [...curr, id],
-    );
-  };
-
   return (
     <div
-      className="min-h-screen bg-white dark:bg-slate-900
+      className="theme-guest min-h-screen bg-white dark:bg-slate-900
                     text-gray-900 dark:text-white"
     >
+      <WishlistAnnouncer message={announcement} />
       {/* Standalone header */}
       <HotelHeader listingSearchParams={paramsString} />
 
@@ -106,7 +104,7 @@ function GuestSuggestionsContent() {
           </Button>
         </nav>
         <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-[240px_minmax(0,1fr)_260px] lg:gap-6 xl:grid-cols-[280px_minmax(0,1fr)_260px]">
-          {/* ΓöÇΓöÇ Left: Suggestions sidebar ΓöÇΓöÇ */}
+          {/* ── Left: Suggestions sidebar ── */}
           <aside className="min-w-0 space-y-4">
             <div>
               <h2 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -118,10 +116,10 @@ function GuestSuggestionsContent() {
               </p>
               <Link
                 href={listingHref("/rent", new URLSearchParams(paramsString))}
-                className="text-sm text-orange-700 hover:text-orange-800
+                className="text-sm text-primary hover:text-primary/80
                            font-medium underline hover:no-underline"
               >
-                Browse all ΓåÆ
+                Browse all →
               </Link>
             </div>
 
@@ -135,7 +133,7 @@ function GuestSuggestionsContent() {
                   className={cn(
                     "relative flex w-72 shrink-0 items-start gap-2 rounded-xl border p-3 transition-colors lg:w-full",
                     selected?.id === apt.id
-                      ? "border-orange-400 bg-orange-50 dark:bg-orange-900/10"
+                      ? "border-primary bg-accent"
                       : "border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800",
                   )}
                 >
@@ -158,7 +156,7 @@ function GuestSuggestionsContent() {
                     }}
                     aria-pressed={selected?.id === apt.id}
                     aria-label={`Select ${apt.name}`}
-                    className="flex min-w-0 flex-1 items-start gap-2 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                    className="flex min-w-0 flex-1 items-start gap-2 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {/* Thumbnail */}
                     <div
@@ -200,36 +198,39 @@ function GuestSuggestionsContent() {
                                       text-xs text-gray-600 dark:text-gray-400"
                       >
                         <span>{apt.bedrooms}bd</span>
-                        <span>┬╖</span>
+                        <span>·</span>
                         {apt.petFriendly && (
                           <>
                             <span>pet friendly</span>
-                            <span>┬╖</span>
+                            <span>·</span>
                           </>
                         )}
                         <span>{apt.bathrooms} ba</span>
-                        <span
-                          className="ml-auto font-bold text-green-700
-                                     dark:text-green-400"
-                        >
-                          ${apt.price.toLocaleString()}
-                        </span>
+                        <ListingPrice
+                          amount={apt.price}
+                          size="sm"
+                          className="ml-auto"
+                        />
                       </div>
                     </div>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => toggleFavorite(apt.id)}
-                    aria-pressed={favorites.includes(apt.id)}
-                    aria-label={`Toggle favorite for ${apt.name}`}
-                    className="relative z-10 shrink-0 rounded-full p-1 focus-visible:ring-2 focus-visible:ring-orange-500 mt-0.5"
+                    onClick={() => toggleSaved(apt.id)}
+                    aria-pressed={isSaved(apt.id)}
+                    aria-label={
+                      isSaved(apt.id)
+                        ? `Remove ${apt.name} from Wishlists`
+                        : `Save ${apt.name} to Wishlists`
+                    }
+                    className="relative z-10 shrink-0 rounded-full p-1 focus-visible:ring-2 focus-visible:ring-ring mt-0.5"
                   >
                     <Heart
                       aria-hidden="true"
                       className={cn(
                         "h-4 w-4 transition-colors",
-                        favorites.includes(apt.id)
+                        isSaved(apt.id)
                           ? "fill-red-500 text-red-500"
                           : "text-gray-300 hover:text-red-400",
                       )}
@@ -261,8 +262,8 @@ function GuestSuggestionsContent() {
                     <span
                       className="absolute bottom-4 left-4 inline-flex
                                  items-center gap-1 rounded-lg
-                                 bg-orange-700 px-3 py-1.5 text-xs font-semibold
-                                 text-white shadow-md"
+                                 bg-primary px-3 py-1.5 text-xs font-semibold
+                                 text-primary-foreground shadow-md"
                     >
                       Promoted
                     </span>
@@ -305,15 +306,7 @@ function GuestSuggestionsContent() {
                     </p>
                   </div>
                   <div className="shrink-0 sm:text-right">
-                    <span
-                      className="text-2xl font-bold text-green-700
-                                 dark:text-green-400"
-                    >
-                      ${selected.price.toLocaleString()}
-                    </span>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Per month
-                    </p>
+                    <ListingPrice amount={selected.price} size="md" />
                   </div>
                 </div>
 
@@ -324,17 +317,17 @@ function GuestSuggestionsContent() {
                             text-sm text-gray-600 dark:text-gray-300"
                 >
                   <span className="flex items-center gap-1.5">
-                    <Bed className="h-4 w-4 text-orange-700" />
+                    <Bed className="h-4 w-4 text-primary" />
                     {selected.bedrooms} Bedrooms
                   </span>
                   <span>·</span>
                   <span className="flex items-center gap-1.5">
-                    <Bath className="h-4 w-4 text-orange-700" />
+                    <Bath className="h-4 w-4 text-primary" />
                     {selected.bathrooms} Bathrooms
                   </span>
                   <span>·</span>
                   <span className="flex items-center gap-1.5">
-                    <PawPrint className="h-4 w-4 text-orange-700" />
+                    <PawPrint className="h-4 w-4 text-primary" />
                     {selected.petFriendly ? "Pet friendly" : "No pets"}
                   </span>
                 </div>
@@ -361,16 +354,7 @@ function GuestSuggestionsContent() {
                             p-4 shadow-sm space-y-4 sm:p-5 xl:sticky xl:top-6"
                 >
                   <div>
-                    <span
-                      className="text-2xl font-bold text-gray-900
-                                 dark:text-white"
-                    >
-                      ${selected.price.toLocaleString()}
-                    </span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {" "}
-                      / month
-                    </span>
+                    <ListingPrice amount={selected.price} size="md" />
                   </div>
 
                   <div
@@ -402,9 +386,9 @@ function GuestSuggestionsContent() {
                         ),
                       )
                     }
-                    className="w-full rounded-xl bg-orange-700 py-3 text-center
-                           text-sm font-semibold text-white shadow-lg
-                           shadow-orange-500/20 hover:bg-orange-800
+                    className="w-full rounded-xl bg-primary py-3 text-center
+                           text-sm font-semibold text-primary-foreground shadow-lg
+                           shadow-primary/20 hover:bg-primary/90
                            transition-colors"
                   >
                     Book with Escrow
@@ -438,11 +422,11 @@ function GuestSuggestionsContent() {
                         )
                       }
                       className="flex w-full items-center justify-center gap-2
-                             rounded-xl border border-orange-700 py-2.5 text-sm
-                             font-semibold text-orange-700 hover:bg-orange-50
-                             dark:hover:bg-orange-950/20 transition-colors"
+                             rounded-xl border border-primary py-2.5 text-sm
+                             font-semibold text-primary hover:bg-accent
+                             transition-colors"
                     >
-                      <MessageCircle className="h-4 w-4" />
+                      <MessageCircle aria-hidden="true" className="h-4 w-4" />
                       Message host
                     </button>
                   )}

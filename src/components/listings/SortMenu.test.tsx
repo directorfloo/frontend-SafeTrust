@@ -81,6 +81,6 @@ describe("SortMenu", () => {
 
     expect(
       screen.getByRole("button", { name: "Price: High to Low" }),
-    ).toHaveClass("bg-orange-50");
+    ).toHaveClass("bg-accent");
   });
 });

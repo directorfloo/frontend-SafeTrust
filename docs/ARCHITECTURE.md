@@ -61,9 +61,28 @@ src/
 
 ## 3. Core Decision Rules (Current)
 
-1. **Consolidate by change and runtime.** Code that changes together and needs the same runtime (wallet, escrow SDK, query client) lives in the same feature and mounts under the same route group.
-2. **Isolate by trust and blast radius.** Secrets and server SDKs live on the server side, away from client code. Each route group will have its own error boundary (Planned).
-3. **One way in.** A feature is consumed through its public `index.ts`. Deep imports into a feature's internal subdirectories (`@/features/<x>/components/...`) are forbidden.
+1. **Consolidate by change and runtime:**
+   Code that changes together and needs the same runtime (wallet, escrow SDK, query client) lives in the same feature and mounts under the same route group (FE-54).
+2. **Isolate by trust and blast radius:**
+   Secrets and server SDKs live in `server/` (FE-48); each route group has its own error boundary (FE-55).
+3. **One way in:**
+   A feature is consumed through its public `index.ts`; deep imports into a feature's internal subdirectories (`@/features/<x>/components/...`) are forbidden and enforced as ESLint errors.
+4. **Pages are composition roots (FE-56):**
+   Every `src/app/**/page.tsx` is a Server Component. Pages read route params,
+   load data through feature repositories, handle `notFound()`/`redirect()`,
+   export public-route metadata, and render feature components through their
+   public `index.ts`. Keep client state, effects, and `useSearchParams` inside
+   feature components; wrap components that use `useSearchParams` in `Suspense`
+   from the page. Do not use `force-dynamic` solely to avoid a client-side
+   rendering bailout. `npm run lint` rejects `"use client"` in route pages
+   outside the shrinking migration allowlist maintained in
+   `scripts/check-thin-pages.mjs`.
+
+---
+
+## 4. ESLint Boundary Enforcement
+
+ESLint rules in `eslint.config.mjs` enforce these layer boundaries automatically:
 
 - **Presentational UI isolation (`src/components/ui/**/*.{ts,tsx}`)**: Banned from importing `@/features/*`, `@/hooks/*`, `@/providers/*`, `@/server/*`, `@/lib/mockData*`, `@/lib/demo*`.
 - **Feature encapsulation (`src/features/**/*.{ts,tsx}`)**: Banned from deep imports into other features (`@/features/*/*`) and cannot reach `@/server/*` or `@/app/*`.
@@ -74,17 +93,6 @@ src/
 > **Verified against:** `src/features/` layout at `ad2f38d7`. Status: Current for rules 1 and 3, Planned for the per-group error boundary in rule 2. Rule 2 (server-only boundary) is Current.
 
 Status: Current · Verified against ad2f38d7
-
----
-
-## 4. ESLint Boundary Enforcement (Current, with Planned rules marked)
-
-Rules in `eslint.config.mjs` enforce these layer boundaries:
-
-- **Presentational UI isolation (`src/components/ui/**/*.{ts,tsx}`)**: Banned from importing `@/features/*`, `@/hooks/*`, `@/providers/*`, `@/server/*`, `@/lib/mockData*`, `@/lib/demo*`.
-- **Feature encapsulation (`src/features/**/*.{ts,tsx}`)**: Banned from deep imports into other features (`@/features/*/*`) and cannot reach `@/server/*` or `@/app/*`.
-- **Shared library purity (`src/lib/**/*.{ts,tsx}`)**: Banned from depending on `@/features/*`, `@/components/*`, or `@/server/*`.
-- **Module escape prevention**: Relative imports escaping module boundaries (`../../../*`) are banned across `src/**/*.{ts,tsx}` in favor of the clean `@/` path alias.
 
 ---
 

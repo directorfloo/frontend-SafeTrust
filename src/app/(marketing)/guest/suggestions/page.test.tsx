@@ -147,7 +147,7 @@ describe("GuestSuggestionsPage – Message host", () => {
       screen.getByRole("heading", { name: "Jardín de Heredia House" }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: /Casa Níspero/ }),
+      screen.queryByRole("button", { name: /^Select Casa Níspero/ }),
     ).not.toBeInTheDocument();
   });
 

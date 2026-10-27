@@ -23,6 +23,8 @@ export type NavItem = {
   /** Paths that `matches` would catch but that belong to another nav context. */
   excludes?: RegExp[];
   badge?: "notifications" | "messages";
+  /** Feature is a demo whose data is never stored. */
+  demo?: boolean;
 };
 
 export const NAV_ITEMS: NavItem[] = [
@@ -39,8 +41,14 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Hotels",
     icon: Hotel,
     matches: ["/dashboard/hotels/"],
+    demo: true,
   },
-  { href: "/dashboard/hotels/new", label: "New Hotel", icon: PlusCircle },
+  {
+    href: "/dashboard/hotels/new",
+    label: "New Hotel",
+    icon: PlusCircle,
+    demo: true,
+  },
   {
     href: "/dashboard/notifications",
     label: "Notifications",

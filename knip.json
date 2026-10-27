@@ -11,14 +11,12 @@
     "src/components/dashboard/apartments/ApartmentFormFields.tsx",
     "src/core/config/axios/notifications.ts",
     "src/types/escrow.ts",
-    "src/hooks/index.ts",
     "src/lib/firebase-app.ts",
     "src/components/listings/ActiveFilterChips.tsx",
     "src/components/listings/RentFiltersPanel.tsx",
     "src/lib/rent-filters.ts",
-    "src/providers/AppProviders.tsx",
-    "src/components/rooms/index.ts",
-    "src/components/rooms/cards/index.ts"
+    "src/features/listings/**",
+    "src/providers/AppProviders.tsx"
   ],
   "ignoreIssues": {
     ".husky/**": ["binaries"]

@@ -13,7 +13,6 @@ interface RoomActionBarProps {
   listingId: string;
   listingName: string;
   isLiked?: boolean;
-  likeCount?: number;
   onShare?: () => void;
   onLike?: () => void;
   onContact?: () => void;
@@ -26,7 +25,6 @@ const RoomActionBar = ({
   listingId,
   listingName,
   isLiked = false,
-  likeCount = 24,
   onShare,
   onLike,
   onContact,
@@ -49,11 +47,7 @@ const RoomActionBar = ({
         <div className="flex items-center gap-2">
           <ShareButton onShare={onShare} />
 
-          <FavoriteButton
-            isLiked={isLiked}
-            likeCount={likeCount}
-            onLike={onLike}
-          />
+          <FavoriteButton isLiked={isLiked} onLike={onLike} />
         </div>
 
         <div className="flex items-center gap-2">
@@ -96,13 +90,7 @@ const RoomActionBar = ({
       {/* Mobile Actions */}
       <div className="flex sm:hidden gap-2">
         <ShareButton className="flex-1" onShare={onShare} />
-        <FavoriteButton
-          className="flex-1"
-          isLiked={isLiked}
-          likeCount={0}
-          showCount={false}
-          onLike={onLike}
-        />
+        <FavoriteButton className="flex-1" isLiked={isLiked} onLike={onLike} />
         <ContactButton className="flex-1" onContact={onContact} />
       </div>
     </div>

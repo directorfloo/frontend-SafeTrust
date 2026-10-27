@@ -4,6 +4,7 @@ import {
   navIconClass,
   navItemClass,
 } from "@/components/layouts/nav-item-styles";
+import { cn } from "@/lib/utils";
 import { Home, Shield, User, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -45,11 +46,15 @@ const SIDEBAR_LINKS: { section: string; items: SidebarLink[] }[] = [
   },
 ];
 
-export function ProfileSettingsSidebar() {
+export function ProfileSettingsSidebar({
+  className,
+}: {
+  className?: string;
+}) {
   const pathname = usePathname();
 
   return (
-    <nav className="w-44 shrink-0 border-r border-border p-6">
+    <nav className={cn("w-44 shrink-0 border-r border-border p-6", className)}>
       {SIDEBAR_LINKS.map((group) => (
         <div key={group.section} className="mb-6">
           <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wider mb-2 px-2">

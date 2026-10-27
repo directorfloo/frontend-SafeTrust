@@ -81,7 +81,10 @@ test("profile editing works with reduced motion and a failed glass chunk", async
       key.replaceAll("\\", "/") ===
       "components/dashboard/ui/DashboardGlassCard.tsx -> ./GlassSurface",
   );
-  expect(glassKey).toBeTruthy();
+  expect(
+    glassKey,
+    "dynamic glass chunk must exist in the build manifest",
+  ).toBeDefined();
   const files = manifest[glassKey!]!.files;
   for (const file of files.filter((file) => file.endsWith(".js"))) {
     await page.route(`**/_next/${file}`, (route) =>
